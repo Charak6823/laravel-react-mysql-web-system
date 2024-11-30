@@ -1,0 +1,79 @@
+version: '3'
+services:
+  # MySQL Service
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: laravel_react_mysql_web_system_db
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  # PHP & Apache Service for Laravel
+  php:
+    image: php:8.2-apache
+    container_name: php-laravel
+    volumes:
+      - ./NIT/laravel-react-mysql-web-system/backend/:/var/www/html        # Your Laravel code D:\NIT\laravel-react-mysql-web-system\backend
+      - ./NIT/laravel-react-mysql-web-system/backend/php.ini:/usr/local/etc/php/php.ini # Mount custom php.ini
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+    depends_on:
+      - mysql
+
+  # Backend Service (Laravel API)
+  backend:
+    build:
+      context: ./backend  # Build context for your backend service
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: laravel_react_mysql_web_system_db
+      DB_USERNAME: root
+      DB_PASSWORD: root_password
+    depends_on:
+      - mysql
+    ports:
+      - "8000:80"
+    networks:
+      - app-network
+
+  # Frontend Service (React)
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/usr/src/app
+    networks:
+      - app-network
+
+  # Nginx Service
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8081:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf  # Nginx config file
+    depends_on:
+      - frontend
+      - backend  # Ensure both frontend and backend are ready
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:  # Persistent MySQL data storage
+
+networks:
+  app-network:
+    driver: bridge
