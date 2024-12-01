@@ -3,6 +3,7 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PaymentMethodController;
@@ -25,9 +26,11 @@ Route::apiResource('unit_types',UnitTypeController::class);
 Route::apiResource('customers',CustomerController::class);
 Route::apiResource('payment_methods', PaymentMethodController::class);
 Route::apiResource('brands', BrandController::class);
-Route::post(uri:'brands/{id}', action:[BrandController::class,'update']);
+Route::apiResource('categories',CategoryController::class);
 Route::apiResource('auth',AuthController::class);
+
 Route::post('addresses',[AddressController::class,'index']);
+
 
 
 
